@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, send_file
 import yt_dlp
 import os
-import json
-import shutil
 
 app = Flask(__name__)
+
+DISK_PATH = "/var/data"
+COOKIES_FILE = os.path.join(DISK_PATH, "cookies.json")
+OUTPUT_AUDIO_PATH = os.path.join(DISK_PATH, "downloaded_audio.mp3")
 
 def get_cookies_from_browser(output_cookies_file):
     """
@@ -21,7 +23,7 @@ def get_cookies_from_browser(output_cookies_file):
         print(f"Cookies saved to: {output_cookies_file}")
     except Exception as e:
         print(f"Error extracting cookies: {e}")
-        
+
 def download_mp3(video_url, output_audio_path, cookies_file):
     """
     Download audio from YouTube using yt-dlp, with cookies for authentication.
@@ -63,8 +65,8 @@ def download():
     if not video_url:
         return "Error: No video URL provided."
 
-    cookies_file = 'cookies.json'
-    output_audio_path = 'downloaded_audio.mp3'
+    cookies_file = COOKIES_FILE
+    output_audio_path = OUTPUT_AUDIO_PATH
 
     # Extract cookies if not already available
     if not os.path.isfile(cookies_file):
@@ -87,4 +89,5 @@ def download():
         return f"Error: {error}"
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5004)
+    port = int(os.environ.get('PORT', 5000))  # Default to port 5000 if PORT is not set
+    app.run(host='0.0.0.0', port=port)

@@ -1,14 +1,19 @@
 from flask import Flask, render_template, request, send_file
 import yt_dlp
 import os
-import json
-import shutil
 
 app = Flask(__name__)
 
 # Path to store cookies.json in the 'cookies' directory
 COOKIES_DIR = '/var/data/cookies'  # You can change this to an absolute path if needed
 COOKIES_FILE = os.path.join(COOKIES_DIR, 'cookies.json')
+
+# Define the same directory where cookies are saved to also save the audio file
+AUDIO_SAVE_DIR = COOKIES_DIR  # Save the audio in the same directory as cookies
+
+# Ensure AUDIO_SAVE_DIR exists
+if not os.path.exists(AUDIO_SAVE_DIR):
+    os.makedirs(AUDIO_SAVE_DIR)
 
 def get_cookies_from_browser(output_cookies_file):
     """
@@ -67,7 +72,7 @@ def index():
 @app.route('/download', methods=['POST'])
 def download():
     video_url = request.form['url']
-    output_audio_path = 'downloaded_audio.mp3'
+    output_audio_path = os.path.join(AUDIO_SAVE_DIR, 'downloaded_audio.mp3')  # Save to the same directory as cookies
 
     # Ensure cookies directory exists
     if not os.path.exists(COOKIES_DIR):

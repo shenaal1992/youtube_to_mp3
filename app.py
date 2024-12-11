@@ -1,8 +1,6 @@
-from flask import Flask, render_template, request, send_file
-import yt_dlp
 import os
-import json
-import shutil
+import yt_dlp
+from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
 
@@ -63,20 +61,17 @@ def index():
 @app.route('/download', methods=['POST'])
 def download():
     video_url = request.form['url']
-    cookies_file = 'cookies.json'
-    output_audio_path = 'downloaded_audio.mp3'
+    cookies_file = 'cookies.json'  # Path to your uploaded cookies file (or environment variable)
 
-    # Extract cookies if not already available
+    # Check if cookies file exists in the current directory
     if not os.path.isfile(cookies_file):
-        get_cookies_from_browser(cookies_file)
+        return "Error: Cookies file not found. Please upload the cookies file."
+
+    output_audio_path = 'downloaded_audio.mp3'
 
     # Download the video as MP3
     error = download_mp3(video_url, output_audio_path, cookies_file)
     
-    # Remove the cookies file after the download
-    if os.path.isfile(cookies_file):
-        os.remove(cookies_file)
-
     # If download was successful, send the file to the user
     if error is None:
         return send_file(output_audio_path, as_attachment=True)

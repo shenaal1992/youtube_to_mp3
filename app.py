@@ -10,18 +10,18 @@ def get_cookies_from_browser(output_cookies_file):
     """
     Extract cookies from the browser and save them to a file for use in yt-dlp.
     """
-    ydl_opts = {
-        'cookiefile': output_cookies_file,  # Specify where to save cookies
-        'quiet': True,  # Suppress yt-dlp output
-    }
-
     try:
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download(['--cookies-from-browser', 'chrome'])  # Extract cookies from Chrome
+        # Use yt-dlp to extract cookies from the browser
+        with yt_dlp.YoutubeDL({
+            'cookiefile': output_cookies_file,  # Path to save the cookies
+            'quiet': True  # Suppress yt-dlp output
+        }) as ydl:
+            ydl.extract_cookies_from_browser('chrome')  # Extract cookies from Chrome browser
+        
         print(f"Cookies saved to: {output_cookies_file}")
     except Exception as e:
         print(f"Error extracting cookies: {e}")
-
+        
 def download_mp3(video_url, output_audio_path, cookies_file):
     """
     Download audio from YouTube using yt-dlp, with cookies for authentication.

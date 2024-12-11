@@ -7,7 +7,7 @@ import shutil
 app = Flask(__name__)
 
 # Path to store cookies.json in the 'cookies' directory
-COOKIES_DIR = '/mnt/data/cookies'  # You can change this to an absolute path if needed
+COOKIES_DIR = '/var/data/cookies'  # You can change this to an absolute path if needed
 COOKIES_FILE = os.path.join(COOKIES_DIR, 'cookies.json')
 
 def get_cookies_from_browser(output_cookies_file):

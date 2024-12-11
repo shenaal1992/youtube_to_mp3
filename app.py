@@ -1,8 +1,14 @@
-import os
-import yt_dlp
 from flask import Flask, render_template, request, send_file
+import yt_dlp
+import os
+import json
+import shutil
 
 app = Flask(__name__)
+
+# Path to store cookies.json in the 'cookies' directory
+COOKIES_DIR = '/mnt/data/cookies'  # You can change this to an absolute path if needed
+COOKIES_FILE = os.path.join(COOKIES_DIR, 'cookies.json')
 
 def get_cookies_from_browser(output_cookies_file):
     """
@@ -61,17 +67,23 @@ def index():
 @app.route('/download', methods=['POST'])
 def download():
     video_url = request.form['url']
-    cookies_file = 'cookies.json'  # Path to your uploaded cookies file (or environment variable)
-
-    # Check if cookies file exists in the current directory
-    if not os.path.isfile(cookies_file):
-        return "Error: Cookies file not found. Please upload the cookies file."
-
     output_audio_path = 'downloaded_audio.mp3'
 
+    # Ensure cookies directory exists
+    if not os.path.exists(COOKIES_DIR):
+        os.makedirs(COOKIES_DIR)
+
+    # Extract cookies if not already available
+    if not os.path.isfile(COOKIES_FILE):
+        get_cookies_from_browser(COOKIES_FILE)
+
     # Download the video as MP3
-    error = download_mp3(video_url, output_audio_path, cookies_file)
+    error = download_mp3(video_url, output_audio_path, COOKIES_FILE)
     
+    # Remove the cookies file after the download
+    if os.path.isfile(COOKIES_FILE):
+        os.remove(COOKIES_FILE)
+
     # If download was successful, send the file to the user
     if error is None:
         return send_file(output_audio_path, as_attachment=True)

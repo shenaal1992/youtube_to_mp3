@@ -6,10 +6,6 @@ import shutil
 
 app = Flask(__name__)
 
-# Path to store cookies.json in the 'cookies' directory
-COOKIES_DIR = '/var/data/cookies'  # You can change this to an absolute path if needed
-COOKIES_FILE = os.path.join(COOKIES_DIR, 'cookies.json')
-
 def get_cookies_from_browser(output_cookies_file):
     """
     Extract cookies from the browser and save them to a JSON file for use in yt-dlp.
@@ -67,22 +63,19 @@ def index():
 @app.route('/download', methods=['POST'])
 def download():
     video_url = request.form['url']
+    cookies_file = 'cookies.json'
     output_audio_path = 'downloaded_audio.mp3'
 
-    # Ensure cookies directory exists
-    if not os.path.exists(COOKIES_DIR):
-        os.makedirs(COOKIES_DIR)
-
     # Extract cookies if not already available
-    if not os.path.isfile(COOKIES_FILE):
-        get_cookies_from_browser(COOKIES_FILE)
+    if not os.path.isfile(cookies_file):
+        get_cookies_from_browser(cookies_file)
 
     # Download the video as MP3
-    error = download_mp3(video_url, output_audio_path, COOKIES_FILE)
+    error = download_mp3(video_url, output_audio_path, cookies_file)
     
     # Remove the cookies file after the download
-    if os.path.isfile(COOKIES_FILE):
-        os.remove(COOKIES_FILE)
+    if os.path.isfile(cookies_file):
+        os.remove(cookies_file)
 
     # If download was successful, send the file to the user
     if error is None:
@@ -91,4 +84,4 @@ def download():
         return f"Error: {error}"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

@@ -6,24 +6,20 @@ import shutil
 
 app = Flask(__name__)
 
-def get_cookies_from_browser(output_cookies_file):
-    """
-    Extract cookies from the browser and save them to a JSON file for use in yt-dlp.
-    """
+def get_cookies_from_browser(output_cookies_file, browser_name='chrome'):
     ydl_opts = {
-        'extractor_args': {
-            'youtube': ['cookies_from_browser'],  # Extract cookies
-        },
-        'cookiefile': output_cookies_file,  # Save cookies to file
-        'quiet': True,  # Hide progress
+        'cookiesfrombrowser': browser_name,
+        'cookiefile': output_cookies_file,
+        'quiet': False,  # Set to False to see detailed logs
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.extract_info('https://www.youtube.com', download=False)  # Extract cookies
-        print(f"Cookies saved to: {output_cookies_file}")
+            ydl.extract_info('https://www.youtube.com', download=False)
+        print(f"Cookies successfully saved to: {output_cookies_file}")
     except Exception as e:
-        print(f"Error extracting cookies: {e}")
+        print(f"Error extracting cookies from {browser_name}: {e}")
+        
 
 def download_mp3(video_url, output_audio_path, cookies_file):
     """
